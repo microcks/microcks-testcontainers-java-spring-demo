@@ -19,5 +19,5 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Test
-        run: ./mvnw test
+      - name: Build Java components
+        run: mvn -B test
