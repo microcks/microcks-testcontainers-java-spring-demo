@@ -47,7 +47,7 @@ public class OrderServiceTests extends BaseIntegrationTest {
          CompletableFuture<TestResult> testRequestFuture = microcksEnsemble.getMicrocksContainer().testEndpointAsync(kafkaTest);
          await().pollDelay(750, TimeUnit.MILLISECONDS).untilAsserted(() -> assertTrue(true));
 
-         // Stimulate the application to create an order.
+         // Invoke the application to create an order.
          Order createdOrder = service.placeOrder(info);
 
          // You may check additional stuff on createdOrder...
@@ -77,7 +77,7 @@ Things are a bit more complex here, but we'll walk through step-by-step:
 * We also prepared an `OrderInfo` object that will be used as the input of the `placeOrder()` method invocation on `OrderService`.
 * Then, we launched the test on the Microcks side. This time, the launch is asynchronous, so we received a `Future` that will give us a `TestResult` later on
   * We wait a bit here to ensure, Microcks got some time to start the test and connect to Kafka broker.
-* We can stimulate our business service by creating an order with `placeOrder()` method. We could assert whatever we want on created order as well.
+* We can invoke our business service by creating an order with `placeOrder()` method. We could assert whatever we want on created order as well.
 * Finally, we wait for the future completion to retrieve the `TestResult` and assert on the success and check we received 1 message as a result.
 
 Because the test is a success, it means that Microcks has received an `OrderEvent` on the specified topic and has validated the message
