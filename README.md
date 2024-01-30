@@ -5,9 +5,9 @@
 This application is a demonstration on how to integrate Microcks via [Testcontainers]([https://www.testcontainers.com]) within your development inner-loop.
 
 You will work with a Spring Boot application and explore how to:
-* Use Microcks for provisioning third-party API mocks,
-* Use Microcks for simulating external Kafka events publishers,
-* Write tests using Microcks contract-testing features for both REST/OpenAPI based APIs and Events/AsyncAPI based messaging
+* Use Microcks for **provisioning third-party API mocks**,
+* Use Microcks for **simulating external Kafka events publishers**,
+* Write tests using Microcks **contract-testing** features for both **REST/OpenAPI based APIs and Events/AsyncAPI** based messaging
 
 ## Table of contents
 
