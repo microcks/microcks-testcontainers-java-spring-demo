@@ -130,7 +130,7 @@ messages produced by Microcks are correctly received and processed on the applic
 
 The important things to get in this test are:
 * We're waiting at most 4 seconds here because the default publication frequency of Microcks mocks is 3 seconds (this can be configured as you want of course),
-* Within each polling iteration, we're checking for the order with id `123-456-789` because this are the values defined within the `order-events-asyncapi.yaml` AsyncAPI contract examples
+* Within each polling iteration, we're checking for the order with id `123-456-789` because these are the values defined within the `order-events-asyncapi.yaml` AsyncAPI contract examples
 * If we retrieve this order and get the correct information from the service, it means that is has been received and correctly processed!
 * If no message is found before the end of 4 seconds, the loop exits with a `ConditionTimeoutException` and we mark our test as failed.
 
