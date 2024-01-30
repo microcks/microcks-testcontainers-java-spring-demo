@@ -18,6 +18,13 @@ The `Order Service` application has been designed around 5 main components that 
 Of course, this is a very naive vision of a real-life system as such an application would certainly pull out much more
 dependencies (like a `Payment Service`, a `Customer Service`, a `Shipping Service`, and much more) and offer more complex API.
 
+
+However, this situation is complex enough to highlight the two problems we're addressing:
+1) How to **efficiently set up a development environment** that depends on third-party API like the Pastry API?
+   You certainly want to avoid cloning this component repository, figuring out how to launch it and configure it accordingly. As a developer, developing your own mock of this service makes you also lose time and risk drifting from initial intent,
+2) How to **efficiently validate the conformance** of the `Order API` and `Order Events` against business expectations and API contracts?
+   Besides the core business logic, you might want to validate the network and protocol serialization layers as well as the respect of semantics.
+
 ## Business logic
 
 This application must implement basic flows:
@@ -34,13 +41,7 @@ All the interactions are specified using API contracts:
 
 Those specifications will help us for two things:
 1) They will be used to provide simulations (or mocks) of third-parties systems - typically the Pastry API provider and the reviewer system that provides updates on `OrderEvents`
-2) They will be used to allow checking the conformance of the provided `Order API` and the published `OrderEvent` on order creation. 
+2) They will be used to allow checking the conformance of the provided `Order API` and the published `Order Event` on order creation. 
 
 ### 
 [Next](step-3-local-development-experience.md)
-
-However, this situation is complex enough to highlight the two problems we're addressing:
-1) How to **efficiently set up a development environment** that depends on third-party API like the Pastry API?
-   You certainly want to avoid cloning this component repository, figuring out how to launch it and configure it accordingly. As a developer, developing your own mock of this service makes you also lose time and risk drifting from initial intent,
-2) How to **efficiently validate the conformance** of the `Order API` against business expectations and OpenAPI contract?
-   Besides the core business logic, you might want to validate the network and protocol serialization layers as well as the respect of HTTP semantics.

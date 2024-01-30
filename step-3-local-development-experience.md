@@ -211,7 +211,7 @@ This time you get another "exception" response:
 {"productName":"Eclair Chocolat","details":"Pastry Eclair Chocolat is not available"}%
 ```
 
-and this is because Microcks has created different simulations for the Pastry API 3re party API based on API artifacts we loaded.
+and this is because Microcks has created different simulations for the Pastry API 3rd party API based on API artifacts we loaded.
 Check the `src/test/resources/third-parties/apipastries-openapi.yaml` and `src/test/resources/third-parties/apipastries-postman-collection.json` files to get details.
 
 ### 

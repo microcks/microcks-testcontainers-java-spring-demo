@@ -1,6 +1,5 @@
 package org.acme.order.api;
 
-import io.github.microcks.testcontainers.MicrocksContainersEnsemble;
 import io.github.microcks.testcontainers.model.TestRequest;
 import io.github.microcks.testcontainers.model.TestResult;
 import io.github.microcks.testcontainers.model.TestRunnerType;
@@ -9,18 +8,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.acme.order.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrderControllerContractTests extends BaseIntegrationTest {
-
-   @Autowired
-   MicrocksContainersEnsemble microcksEnsemble;
-
-   @Test
-   void contextLoads() {}
 
    @Test
    public void testOpenAPIContract() throws Exception {
