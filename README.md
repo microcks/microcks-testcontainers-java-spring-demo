@@ -1,5 +1,7 @@
 # Microcks Testcontainers Spring Boot Demo
 
+![Microcks Testcontainers Spring demo](./assets/microcks-testcontainers-java-spring-demo.png)
+
 This application is a demonstration on how to integrate Microcks via [Testcontainers]([https://www.testcontainers.com]) within your development inner-loop.
 
 You will work with a Spring Boot application and explore how to:
