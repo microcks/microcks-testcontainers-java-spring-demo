@@ -5,7 +5,7 @@ Testing of asynchronous or event-driven system is usually a pain for developers 
 
 ## First Test - Verify our OrderService is publishing events
 
-In this section, we'll focus on testing the `Ooder Service` + `Event Publisher` components of our application:
+In this section, we'll focus on testing the `Order Service` + `Event Publisher` components of our application:
 
 ![Event Publisher Test](./assets/test-order-event-publisher.png)
 
@@ -187,7 +187,7 @@ sequenceDiagram
     OrderService-->OrderService: update order status
     OrderService->>-OrderEventListener: done
   and Test execution
-    Note over OrderServiceTests,OrderService: At most 4 seconds
+    Note over OrderService,OrderEventListenerTests: At most 4 seconds
     loop Each 400ms
       OrderEventListenerTests->>+OrderService: getOrder("123-456-789")
       OrderService-->-OrderEventListenerTests: order or throw OrderNotFoundException
@@ -197,6 +197,8 @@ sequenceDiagram
         OrderEventListenerTests-->OrderEventListenerTests: continue;
       end
     end
+    Note over OrderService,OrderEventListenerTests: If here, it means that we never received expected message
+    OrderEventListenerTests-->OrderEventListenerTests: fail();
   end
 ```
 
