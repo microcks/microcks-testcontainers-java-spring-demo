@@ -46,6 +46,10 @@ public abstract class BaseIntegrationTest {
 
 ## First Test - Verify our RESTClient
 
+In this section, we'll focus on testing the `Pastry API Client` component of our application:
+
+![Pastry API Client](./assets/test-pastry-api-client.png)
+
 Let's review the test class `PastryAPIClientTests` under `src/test/java/org/acme/order/client`:
 
 ```java
@@ -91,9 +95,27 @@ and that they're correctly wired to the application. Within this test:
 * The `PastryAPIClient` has been configured with a REST Client that is wired to the Microcks mock endpoints.
 * We're validating the configuration of this client as well as all the JSON and network serialization details of our configuration!  
 
+The sequence diagram below details the test sequence. Microcks is used as a third-party backend to allow going through all the layers:
+
+```mermaid
+sequenceDiagram
+    PastryAPIClientTests->>+PastryAPIClient: listPastries("S")
+    PastryAPIClient->>+RESTClient: get()
+    RESTClient->>+Microcks: GET /pastries?size=S
+    participant Microcks
+    Note right of Microcks: Initialized at test startup
+    Microcks-->>-RESTClient: HTTP Response w. JSON[]
+    RESTClient-->>-PastryAPIClient: Response
+    PastryAPIClient-->>-PastryAPIClientTests: List<Pastry>
+```
+
 ## Second Test - Verify the technical conformance of Order Service API
 
-The 2nd thing we want to validate is the conformance of the `Order API` we'll expose to consumers.
+The 2nd thing we want to validate is the conformance of the `Order API` we'll expose to consumers. In this section and the next one,
+we'll focus on testing the `OrderController` component of our application:
+
+![Order Controller Test](./assets/test-order-service-api.png)
+
 We certainly can write an integration test that uses [Rest Assured](https://rest-assured.io/) or other libraries
 to invoke the exposed HTTP layer and validate each and every response with Java assertions like:
 
@@ -147,6 +169,23 @@ test we want to run:
 
 Finally, we're retrieving a `TestResult` from Microcks containers, and we can assert stuffs on this result, checking it's a success.
 
+The sequence diagram below details the test sequence. Microcks is used as a middleman that actually invokes your API with the example from its dataset: 
+
+```mermaid
+sequenceDiagram
+    OrderControllerContractTests->>+Microcks: testEndpoint()
+    participant Microcks
+    Note right of Microcks: Initialized at test startup
+    loop For each example in Microcks
+      Microcks->>+OrderController: HTTP Request
+      OrderController->>+OrderService: business logic
+      OrderService-->-OrderController: response
+      OrderController-->-Microcks: HTTP Response
+      Microcks-->Microcks: validate Response
+    end  
+    Microcks-->-OrderControllerContractTests: TestResult
+```
+
 Our `OrderController` development is technically correct: all the JSON and HTTP serialization layers have been tested!
 
 ## Third Test - Verify the business conformance of Order Service API
@@ -196,9 +235,12 @@ public class OrderControllerPostmanContractTests extends BaseIntegrationTest {
 }
 ```
 
-Comparing to the code in previous section, the lony change here is that we asked Microcks to use a `Postman` runner
+Comparing to the code in previous section, the only change here is that we asked Microcks to use a `Postman` runner
 for executing our conformance test. What happens under the hood is now that Microcks is re-using the collection snippets
 to put some constraints on API response and check their conformance.
+
+The test sequence is exactly the same as in the previous section. The difference here lies in the type of response validation: Microcks
+reuses Postman collection constraints.
 
 You're now sure that beyond the technical conformance, the `Order Service` also behaves as expected regarding business 
 constraints. 
