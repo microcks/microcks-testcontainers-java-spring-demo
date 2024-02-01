@@ -5,7 +5,7 @@ Testing of asynchronous or event-driven system is usually a pain for developers 
 
 ## First Test - Verify our OrderService is publishing events
 
-In this section, we'll focus on testing the `Event Publisher` component of our application:
+In this section, we'll focus on testing the `Ooder Service` + `Event Publisher` components of our application:
 
 ![Event Publisher Test](./assets/test-order-event-publisher.png)
 
@@ -115,7 +115,7 @@ configuration and network communication are actually correct!
 
 ## Second Test - Verify our OrderEventListener is processing events
 
-In this section, we'll focus on testing the `Event Consumer` component of our application:
+In this section, we'll focus on testing the `Event Consumer` + `Order Service` components of our application:
 
 ![Event Publisher Test](./assets/test-order-event-consumer.png)
 
