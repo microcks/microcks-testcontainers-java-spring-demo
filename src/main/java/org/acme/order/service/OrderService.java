@@ -7,6 +7,8 @@ import org.acme.order.service.model.OrderEvent;
 import org.acme.order.service.model.OrderInfo;
 import org.acme.order.service.model.OrderStatus;
 import org.acme.order.service.model.ProductQuantity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,6 +24,8 @@ import java.util.concurrent.ExecutionException;
  */
 @Service
 public class OrderService {
+
+   private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
    // This is a dumb implementation of an event sourcing repository. Don't use this in production!
    private final Map<String, List<OrderEvent>> orderEventsRepository = new HashMap<>();
@@ -120,6 +124,7 @@ public class OrderService {
          Pastry pastry = pastryRepository.getPastry(pastryName);
          return CompletableFuture.completedFuture("available".equals(pastry.status()));
       } catch (Exception e) {
+         log.error("Got exception from Pastry client: {}", e.getMessage());
          return CompletableFuture.completedFuture(false);
       }
    }

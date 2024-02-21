@@ -169,7 +169,7 @@ The important things to get in this test are:
 
 The sequence diagram below details the test sequence. You'll see 3 parallel blocks being executed:
 * The first corresponds to Microcks mocks - where it connects to Kafka, creates a topic and publishes sample messages each 3 seconds,
-* The second one corresponds to the `ORderEventListener` invocation that should be triggered when a message is found in the topic,
+* The second one corresponds to the `OrderEventListener` invocation that should be triggered when a message is found in the topic,
 * The third one corresponds to the actual test - where we check that the specified order has been found and processed by the `OrderService`. 
 
 ```mermaid

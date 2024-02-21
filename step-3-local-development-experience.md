@@ -30,7 +30,7 @@ Currently, if you run the application from your terminal, you will see the follo
 [...]
 ```
 
-To run the application locally, we need to have a Kafka broker up and running + the other dependencies corresponding to our Pastry API provider and reviewing systme.
+To run the application locally, we need to have a Kafka broker up and running + the other dependencies corresponding to our Pastry API provider and reviewing system.
 
 Instead of installing these services on our local machine, or using Docker to run these services manually,
 we will use [Spring Boot support for Testcontainers at Development Time](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#features.testing.testcontainers.at-development-time) to provision these services automatically.
@@ -48,7 +48,7 @@ In order to see what's needed to run this, you may check the `pom.xml` file.
 
 ## Review ContainersConfiguration class under src/test/java/org/acme/order
 
-In order to specify the dependance services we need, we use a specific Spring `Configuration` class located into `/src/test/java``
+In order to specify the dependant services we need, we use a specific Spring `Configuration` class located into `/src/test/java``
 
 Let's review `ContainersConfiguration` class under `src/test/java/org/acme/order` to configure the required containers.
 
@@ -176,8 +176,8 @@ Now, you can invoke the APIs using CURL or Postman or any of your favourite HTTP
 ## Create an order
 
 ```shell
-curl -XPOST localhost:8080/api/orders -H 'Content-type: application/json' \                                                                                                                                      ─╯
-    -d '{"customerId": "lbroudoux", "productQuantities": [{"productName": "Millefeuille", "quantity": 1}], "totalPrice": 5.1}'
+curl -XPOST localhost:8080/api/orders -H 'Content-type: application/json' \
+    -d '{"customerId": "lbroudoux", "productQuantities": [{"productName": "Millefeuille", "quantity": 1}], "totalPrice": 5.1}' -v
 ```
 
 You should get a response similar to the following:
@@ -195,7 +195,7 @@ You should get a response similar to the following:
 Now test with something else, requesting for another Pastry:
 
 ```shell
-curl -XPOST localhost:8080/api/orders -H 'Content-type: application/json' \                                                                                                                                      ─╯
+curl -XPOST localhost:8080/api/orders -H 'Content-type: application/json' \
     -d '{"customerId": "lbroudoux", "productQuantities": [{"productName": "Eclair Chocolat", "quantity": 1}], "totalPrice": 4.1}' -v
 ```
 
