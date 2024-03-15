@@ -15,15 +15,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.containers.KafkaContainer;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
-public class OrderServiceTests extends BaseIntegrationTest {
+class OrderServiceTests extends BaseIntegrationTest {
 
    @Autowired
    KafkaContainer kafkaContainer;
@@ -32,7 +32,7 @@ public class OrderServiceTests extends BaseIntegrationTest {
    OrderService service;
 
    @Test
-   public void testEventIsPublishedWhenOrderIsCreated() {
+   void testEventIsPublishedWhenOrderIsCreated() {
       ensureTopicExists("orders-created");
 
       // Prepare a Microcks test.
@@ -41,7 +41,7 @@ public class OrderServiceTests extends BaseIntegrationTest {
             .filteredOperations(List.of("SUBSCRIBE orders-created"))
             .runnerType(TestRunnerType.ASYNC_API_SCHEMA.name())
             .testEndpoint("kafka://kafka:19092/orders-created")
-            .timeout(2000l)
+            .timeout(Duration.ofSeconds(2))
             .build();
 
       // Prepare an application Order.
@@ -53,9 +53,10 @@ public class OrderServiceTests extends BaseIntegrationTest {
       try {
          // Launch the Microcks test and wait a bit to be sure it actually connects to Kafka.
          CompletableFuture<TestResult> testRequestFuture = microcksEnsemble.getMicrocksContainer().testEndpointAsync(kafkaTest);
-         await().pollDelay(750, TimeUnit.MILLISECONDS).untilAsserted(() -> assertTrue(true));
 
-         // Stimulate the application to create an order.
+         TimeUnit.MILLISECONDS.sleep(750L);
+
+         // Invoke the application to create an order.
          Order createdOrder = service.placeOrder(info);
 
          // You may check additional stuff on createdOrder...

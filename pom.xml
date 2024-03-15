@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.1</version>
+		<version>3.2.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.acme</groupId>
@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>io.github.microcks</groupId>
 			<artifactId>microcks-testcontainers</artifactId>
-			<version>0.2.4</version>
+			<version>0.2.5</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

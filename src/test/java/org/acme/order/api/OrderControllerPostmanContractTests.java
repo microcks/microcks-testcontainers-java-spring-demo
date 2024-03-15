@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class OrderControllerPostmanContractTests extends BaseIntegrationTest {
+class OrderControllerPostmanContractTests extends BaseIntegrationTest {
 
    @Test
-   public void testPostmanCollectionContract() throws Exception {
+   void testPostmanCollectionContract() throws Exception {
       // Ask for a Postman Collection script conformance to be launched.
       TestRequest testRequest = new TestRequest.Builder()
             .serviceId("Order Service API:0.1.0")

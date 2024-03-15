@@ -13,13 +13,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
-public class OrderEventListenerTests extends BaseIntegrationTest {
+class OrderEventListenerTests extends BaseIntegrationTest {
 
    @Autowired
    OrderService service;
 
    @Test
-   public void testEventIsConsumedAndProcessedByService() throws Exception {
+   void testEventIsConsumedAndProcessedByService() throws Exception {
       try {
          await().atMost(4, TimeUnit.SECONDS)
                .pollDelay(400, TimeUnit.MILLISECONDS)

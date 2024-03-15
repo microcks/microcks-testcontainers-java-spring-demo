@@ -9,13 +9,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PastryAPIClientTests extends BaseIntegrationTest {
+class PastryAPIClientTests extends BaseIntegrationTest {
 
    @Autowired
    PastryAPIClient client;
 
    @Test
-   public void testGetPastries() {
+   void testGetPastries() {
       // Test our API client and check that arguments and responses are correctly serialized.
       List<Pastry> pastries = client.listPastries("S");
       assertEquals(1, pastries.size());
@@ -28,7 +28,7 @@ public class PastryAPIClientTests extends BaseIntegrationTest {
    }
 
    @Test
-   public void testGetPastry() {
+   void testGetPastry() {
       // Test our API client and check that arguments and responses are correctly serialized.
       Pastry pastry = client.getPastry("Millefeuille");
       assertEquals("Millefeuille", pastry.name());

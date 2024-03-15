@@ -31,7 +31,14 @@ public class ContainersConfiguration {
 
    @Bean
    MicrocksContainersEnsemble microcksEnsemble(DynamicPropertyRegistry registry) {
-      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.8.1")
+      /*
+      DockerImageName nativeImage = DockerImageName.parse("quay.io/microcks/microcks-uber:nightly-native")
+            .asCompatibleSubstituteFor("quay.io/microcks/microcks-uber:1.8.1");
+
+      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, nativeImage)
+      */
+
+      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.9.0")
             .withPostman()             // We need this to do contract-testing with Postman collection
             .withAsyncFeature()        // We need this for async mocking and contract-testing
             .withAccessToHost(true)   // We need this to access our webapp while it runs
