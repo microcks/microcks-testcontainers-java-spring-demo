@@ -13,31 +13,30 @@ We would recommend using [SDKMAN](https://sdkman.io/) to install Java on your ma
 
 ### Install Docker
 
-You need to have a Docker environment to use Testcontainers.
+You need to have a [Docker](https://docs.docker.com/get-docker/) or [Podman](https://podman.io/) environment to use Testcontainers.
 
 ```shell
 $ docker version
 
 Client:
- Cloud integration: v1.0.35
- Version:           24.0.2
- API version:       1.43
- Go version:        go1.20.4
- Git commit:        cb74dfc
- Built:             Thu May 25 21:51:16 2023
+ Cloud integration: v1.0.35+desktop.10
+ Version:           25.0.3
+ API version:       1.44
+ Go version:        go1.21.6
+ Git commit:        4debf41
+ Built:             Tue Feb  6 21:13:26 2024
  OS/Arch:           darwin/arm64
  Context:           desktop-linux
 
-Server: Docker Desktop 4.21.1 (114176)
+Server: Docker Desktop 4.27.2 (137060)
  Engine:
-  Version:          24.0.2
-  API version:      1.43 (minimum version 1.12)
-  Go version:       go1.20.4
-  Git commit:       659604f
-  Built:            Thu May 25 21:50:59 2023
+  Version:          25.0.3
+  API version:      1.44 (minimum version 1.24)
+  Go version:       go1.21.6
+  Git commit:       f417435e5f6216828dec57958c490c4f8bae4f98
+  Built:            Wed Feb  7 00:39:16 2024
   OS/Arch:          linux/arm64
   Experimental:     false
- ...
 ```
 
 ## Download the project
@@ -53,7 +52,7 @@ git clone https://github.com/microcks/microcks-testcontainers-java-spring-demo.g
 With Maven:
 
 ```shell
-./mvnw compile
+./mvnw clean package -DskipTests
 ```
 
 ### 

@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>io.github.microcks</groupId>
 			<artifactId>microcks-testcontainers</artifactId>
-			<version>0.2.5</version>
+			<version>0.2.6</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
