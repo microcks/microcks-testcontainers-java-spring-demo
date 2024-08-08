@@ -33,11 +33,11 @@ public class ContainersConfiguration {
    MicrocksContainersEnsemble microcksEnsemble(DynamicPropertyRegistry registry) {
       // Uncomment these lines (36-38) if you want to use the native image of Microcks
       // and comment the next MicrocksContainersEnsemble declaration line (40).
-//      DockerImageName nativeImage = DockerImageName.parse("quay.io/microcks/microcks-uber:1.9.0-native")
+//      DockerImageName nativeImage = DockerImageName.parse("quay.io/microcks/microcks-uber:1.10.0-native")
 //            .asCompatibleSubstituteFor("quay.io/microcks/microcks-uber:1.9.0");
 //      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, nativeImage)
 
-      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.9.0")
+      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.10.0")
             .withPostman()             // We need this to do contract-testing with Postman collection
             .withAsyncFeature()        // We need this for async mocking and contract-testing
             .withAccessToHost(true)   // We need this to access our webapp while it runs

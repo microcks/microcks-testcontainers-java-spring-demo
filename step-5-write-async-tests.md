@@ -43,7 +43,7 @@ public class OrderServiceTests extends BaseIntegrationTest {
       // Prepare an application Order.
       OrderInfo info = new OrderInfo("123-456-789", List.of(
             new ProductQuantity("Millefeuille", 1),
-            new ProductQuantity("Paris-Brest", 1)
+            new ProductQuantity("Eclair Cafe", 1)
       ), 8.4);
 
       try {
