@@ -7,8 +7,8 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.DynamicPropertyRegistry;
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration(proxyBeanMethods = false)
@@ -22,10 +22,10 @@ public class ContainersConfiguration {
    @Bean
    @ServiceConnection
    KafkaContainer kafkaContainer() {
-      kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"))
+      kafkaContainer = new KafkaContainer(DockerImageName.parse("apache/kafka-native:3.8.0"))
             .withNetwork(network)
-            .withNetworkAliases("kafka")
-            .withListener(() -> "kafka:19092");
+            .withNetworkAliases("kafka");
+//            .withListener(() -> "kafka:19092");
       return kafkaContainer;
    }
 
@@ -37,7 +37,7 @@ public class ContainersConfiguration {
 //            .asCompatibleSubstituteFor("quay.io/microcks/microcks-uber:1.9.0");
 //      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, nativeImage)
 
-      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.10.0")
+      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.10.0-native")
             .withPostman()             // We need this to do contract-testing with Postman collection
             .withAsyncFeature()        // We need this for async mocking and contract-testing
             .withAccessToHost(true)   // We need this to access our webapp while it runs
