@@ -1,5 +1,6 @@
 package org.acme.order;
 
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import io.github.microcks.testcontainers.MicrocksContainersEnsemble;
 import io.github.microcks.testcontainers.connection.KafkaConnection;
 
@@ -8,8 +9,13 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.testcontainers.containers.Network;
+import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 @TestConfiguration(proxyBeanMethods = false)
 public class ContainersConfiguration {
@@ -22,10 +28,10 @@ public class ContainersConfiguration {
    @Bean
    @ServiceConnection
    KafkaContainer kafkaContainer() {
-      kafkaContainer = new KafkaContainer(DockerImageName.parse("apache/kafka-native:3.8.0"))
-            .withNetwork(network)
-            .withNetworkAliases("kafka");
-//            .withListener(() -> "kafka:19092");
+      kafkaContainer = new KafkaWithListenerContainer("apache/kafka-native:3.8.0")
+              .withListener(() -> "kafka:19092")
+              .withNetwork(network)
+              .withNetworkAliases("kafka");
       return kafkaContainer;
    }
 
@@ -48,10 +54,45 @@ public class ContainersConfiguration {
 
       // We need to replace the default endpoints with those provided by Microcks.
       registry.add("application.pastries-base-url",
-            () -> ensemble.getMicrocksContainer().getRestMockEndpoint("API Pastries", "0.0.1"));
+              () -> ensemble.getMicrocksContainer().getRestMockEndpoint("API Pastries", "0.0.1"));
       registry.add("application.order-events-reviewed-topic",
-            () -> ensemble.getAsyncMinionContainer().getKafkaMockTopic("Order Events API", "0.1.0", "PUBLISH orders-reviewed"));
+              () -> ensemble.getAsyncMinionContainer().getKafkaMockTopic("Order Events API", "0.1.0", "PUBLISH orders-reviewed"));
 
       return ensemble;
+   }
+
+   static class KafkaWithListenerContainer extends KafkaContainer {
+
+      private List<Supplier<String>> listeners = new ArrayList<>();
+
+      public KafkaWithListenerContainer(String image) {
+         super(DockerImageName.parse(image));
+      }
+
+      @Override
+      protected void configure() {
+         super.configure();
+         withEnv("KAFKA_LISTENERS",
+                 String.format("%s,%s", "INTERNAL://0.0.0.0:19092", getEnvMap().get("KAFKA_LISTENERS")));
+         withEnv("KAFKA_LISTENER_SECURITY_PROTOCOL_MAP",
+                 String.format("%s,%s", "INTERNAL:PLAINTEXT", getEnvMap().get("KAFKA_LISTENER_SECURITY_PROTOCOL_MAP")));
+      }
+
+      @Override
+      protected void containerIsStarting(InspectContainerResponse containerInfo) {
+         String command = "#!/bin/bash\n";
+         // exporting KAFKA_ADVERTISED_LISTENERS with the container hostname
+         command += String.format("export KAFKA_ADVERTISED_LISTENERS=%s,%s,%s\n",
+                 String.format("INTERNAL://%s", listeners.get(0).get()), String.format("PLAINTEXT://%s", getBootstrapServers()),
+                 String.format("BROKER://%s:%s", containerInfo.getConfig().getHostName(), "9093"));
+
+         command += "/etc/kafka/docker/run \n";
+         copyFileToContainer(Transferable.of(command, 0777), "/tmp/testcontainers_start.sh");
+      }
+
+      public KafkaWithListenerContainer withListener(Supplier<String> listener) {
+         this.listeners.add(listener);
+         return this;
+      }
    }
 }

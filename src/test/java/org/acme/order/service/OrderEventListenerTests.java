@@ -5,13 +5,13 @@ import org.acme.order.service.model.Order;
 import org.acme.order.service.model.OrderStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testcontainers.shaded.org.awaitility.core.ConditionTimeoutException;
+import org.awaitility.core.ConditionTimeoutException;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
+import static org.awaitility.Awaitility.await;
 
 class OrderEventListenerTests extends BaseIntegrationTest {
 
