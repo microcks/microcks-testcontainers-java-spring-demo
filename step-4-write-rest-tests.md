@@ -109,7 +109,7 @@ sequenceDiagram
     PastryAPIClient-->>-PastryAPIClientTests: List<Pastry>
 ```
 
-### Bonus step - Check the mock endpoints are actually used
+### 🎁 Bonus step - Check the mock endpoints are actually used
 
 While the above test is a good start, it doesn't actually check that the mock endpoints are being used. In a more complex application, it's possible
 that the client is not correctly configured or use some cache or other mechanism that would bypass the mock endpoints. In order to check that you
@@ -301,7 +301,7 @@ reuses Postman collection constraints.
 You're now sure that beyond the technical conformance, the `Order Service` also behaves as expected regarding business 
 constraints. 
 
-### Bonus step - Verify the business conformance of Order Service API in pure Java
+### 🎁 Bonus step - Verify the business conformance of Order Service API in pure Java
 
 Even if the Postman Collection runner is a great way to validate business conformance, you may want to do it in pure Java.
 This is possible by retrieving the messages exchanged during the test and checking their content. Let's review the `testOpenAPIContractAndBusinessConformance()`

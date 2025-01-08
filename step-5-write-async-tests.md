@@ -113,7 +113,7 @@ Because the test is a success, it means that Microcks has received an `OrderEven
 conformance with the AsyncAPI contract or this event-driven architecture. So you're sure that all your Spring Boot configuration, Kafka JSON serializer
 configuration and network communication are actually correct!
 
-### Bonus step - Verify the event content
+### 🎁 Bonus step - Verify the event content
 
 So you're now sure that an event has been sent to Kafka and that it's valid regarding the AsyncAPI contract. But what about the content
 of this event? If you want to go further and check the content of the event, you can do it by asking Microcks the events read during the 
