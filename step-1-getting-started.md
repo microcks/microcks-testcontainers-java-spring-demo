@@ -19,24 +19,32 @@ You need to have a [Docker](https://docs.docker.com/get-docker/) or [Podman](htt
 $ docker version
 
 Client:
- Cloud integration: v1.0.35+desktop.10
- Version:           25.0.3
- API version:       1.44
- Go version:        go1.21.6
- Git commit:        4debf41
- Built:             Tue Feb  6 21:13:26 2024
+ Version:           27.3.1
+ API version:       1.47
+ Go version:        go1.22.7
+ Git commit:        ce12230
+ Built:             Fri Sep 20 11:38:18 2024
  OS/Arch:           darwin/arm64
  Context:           desktop-linux
 
-Server: Docker Desktop 4.27.2 (137060)
+Server: Docker Desktop 4.36.0 (175267)
  Engine:
-  Version:          25.0.3
-  API version:      1.44 (minimum version 1.24)
-  Go version:       go1.21.6
-  Git commit:       f417435e5f6216828dec57958c490c4f8bae4f98
-  Built:            Wed Feb  7 00:39:16 2024
+  Version:          27.3.1
+  API version:      1.47 (minimum version 1.24)
+  Go version:       go1.22.7
+  Git commit:       41ca978
+  Built:            Fri Sep 20 11:41:19 2024
   OS/Arch:          linux/arm64
   Experimental:     false
+ containerd:
+  Version:          1.7.21
+  GitCommit:        472731909fa34bd7bc9c087e4c27943f9835f111
+ runc:
+  Version:          1.1.13
+  GitCommit:        v1.1.13-0-g58aa920
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
 ```
 
 ## Download the project

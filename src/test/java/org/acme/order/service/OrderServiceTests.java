@@ -1,9 +1,13 @@
 package org.acme.order.service;
 
+import io.github.microcks.testcontainers.model.EventMessage;
 import io.github.microcks.testcontainers.model.TestRequest;
 import io.github.microcks.testcontainers.model.TestResult;
 import io.github.microcks.testcontainers.model.TestRunnerType;
+import io.github.microcks.testcontainers.model.UnidirectionalEvent;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.acme.order.BaseIntegrationTest;
 import org.acme.order.service.model.Order;
 import org.acme.order.service.model.OrderInfo;
@@ -17,6 +21,7 @@ import org.testcontainers.containers.KafkaContainer;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +74,23 @@ class OrderServiceTests extends BaseIntegrationTest {
          assertFalse(testResult.getTestCaseResults().isEmpty());
          assertEquals(1, testResult.getTestCaseResults().get(0).getTestStepResults().size());
 
-         System.err.println(microcksEnsemble.getAsyncMinionContainer().getLogs());
+         //System.err.println(microcksEnsemble.getAsyncMinionContainer().getLogs());
+
+         // Check the content of the emitted event, read from Kafka topic.
+         List<UnidirectionalEvent> events = microcksEnsemble.getMicrocksContainer()
+               .getEventMessagesForTestCase(testResult, "SUBSCRIBE orders-created");
+
+         assertEquals(1, events.size());
+
+         EventMessage message = events.get(0).getEventMessage();
+         Map<String, Object> messageMap = new ObjectMapper().readValue(message.getContent(), new TypeReference<>() {});
+
+         // Properties from the event message should match the order.
+         assertEquals("Creation", messageMap.get("changeReason"));
+         Map<String, Object> orderMap = (Map<String, Object>) messageMap.get("order");
+         assertEquals("123-456-789", orderMap.get("customerId"));
+         assertEquals(8.4, orderMap.get("totalPrice"));
+         assertEquals(2, ((List<?>) orderMap.get("productQuantities")).size());
       } catch (Exception e) {
          fail("No exception should be thrown when testing Kafka publication", e);
       }

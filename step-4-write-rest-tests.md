@@ -109,6 +109,62 @@ sequenceDiagram
     PastryAPIClient-->>-PastryAPIClientTests: List<Pastry>
 ```
 
+### Bonus step - Check the mock endpoints are actually used
+
+While the above test is a good start, it doesn't actually check that the mock endpoints are being used. In a more complex application, it's possible
+that the client is not correctly configured or use some cache or other mechanism that would bypass the mock endpoints. In order to check that you
+can actually use the `verify()` method available on the Microcks container:
+
+```java
+@Test
+public void testGetPastries() {
+   // Test our API client and check that arguments and responses are correctly serialized.
+   List<Pastry> pastries = client.listPastries("S");
+   assertEquals(1, pastries.size());
+
+   pastries = client.listPastries("M");
+   assertEquals(2, pastries.size());
+
+   pastries = client.listPastries("L");
+   assertEquals(2, pastries.size());
+
+  // Check that the mock API has really been invoked.
+  boolean mockInvoked = microcksEnsemble.getMicrocksContainer().verify("API Pastries", "0.0.1");
+  assertTrue(mockInvoked, "Mock API not invoked");
+}
+```
+
+`verify()` takes the target API name and version as arguments and returns a boolean indicating if the mock has been invoked. This is a good way to
+ensure that the mock endpoints are actually being used in your test.
+
+If you need finer-grained control, you can also check the number of invocations with `getServiceInvocationsCount()`. This way you can check that
+the mock has been invoked the correct number of times:
+
+```java
+@Test
+void testGetPastry() {
+   // Get the number of invocations before our test.
+   long beforeMockInvocations = microcksEnsemble.getMicrocksContainer().getServiceInvocationsCount("API Pastries", "0.0.1");
+
+   // Test our API client and check that arguments and responses are correctly serialized.
+   Pastry pastry = client.getPastry("Millefeuille");
+   assertEquals("Millefeuille", pastry.name());
+   assertEquals("available", pastry.status());
+
+   pastry = client.getPastry("Eclair Cafe");
+   assertEquals("Eclair Cafe", pastry.name());
+   assertEquals("available", pastry.status());
+
+   pastry = client.getPastry("Eclair Chocolat");
+   assertEquals("Eclair Chocolat", pastry.name());
+   assertEquals("unknown", pastry.status());
+
+   // Check our mock API has been invoked the correct number of times.
+   long afterMockInvocations = microcksEnsemble.getMicrocksContainer().getServiceInvocationsCount("API Pastries", "0.0.1");
+   assertEquals(3, afterMockInvocations - beforeMockInvocations, "Mock API not invoked the correct number of times");
+}
+```
+
 ## Second Test - Verify the technical conformance of Order Service API
 
 The 2nd thing we want to validate is the conformance of the `Order API` we'll expose to consumers. In this section and the next one,
@@ -244,6 +300,53 @@ reuses Postman collection constraints.
 
 You're now sure that beyond the technical conformance, the `Order Service` also behaves as expected regarding business 
 constraints. 
+
+### Bonus step - Verify the business conformance of Order Service API in pure Java
+
+Even if the Postman Collection runner is a great way to validate business conformance, you may want to do it in pure Java.
+This is possible by retrieving the messages exchanged during the test and checking their content. Let's review the `testOpenAPIContractAndBusinessConformance()`
+test in class `OrderControllerContractTests` under `src/test/java/org/acme/order/api`:
+
+```java
+@Test
+void testOpenAPIContractAndBusinessConformance() throws Exception {
+   // Ask for an Open API conformance to be launched.
+   TestRequest testRequest = new TestRequest.Builder()
+         .serviceId("Order Service API:0.1.0")
+         .runnerType(TestRunnerType.OPEN_API_SCHEMA.name())
+         .testEndpoint("http://host.testcontainers.internal:" + port + "/api")
+         .build();
+
+   TestResult testResult = microcksEnsemble.getMicrocksContainer().testEndpoint(testRequest);
+
+   assertTrue(testResult.isSuccess());
+   assertEquals(1, testResult.getTestCaseResults().size());
+
+   // You may also check business conformance.
+   List<RequestResponsePair> pairs = microcksEnsemble.getMicrocksContainer().getMessagesForTestCase(testResult, "POST /orders");
+   for (RequestResponsePair pair : pairs) {
+      if ("201".equals(pair.getResponse().getStatus())) {
+         Map<String, Object> requestMap = mapper.readValue(pair.getRequest().getContent(), new TypeReference<>() {});
+         Map<String, Object> responseMap = mapper.readValue(pair.getResponse().getContent(), new TypeReference<>() {});
+
+         List<Map<String, Object>> requestPQ = (List<Map<String, Object>>) requestMap.get("productQuantities");
+         List<Map<String, Object>> responsePQ = (List<Map<String, Object>>) responseMap.get("productQuantities");
+
+         assertEquals(requestPQ.size(), responsePQ.size());
+         for (int i = 0; i < requestPQ.size(); i++) {
+            assertEquals(requestPQ.get(i).get("productName"), responsePQ.get(i).get("productName"));
+         }
+      }
+   }
+}
+```
+
+This test is a bit more complex than the previous ones. It first asks for an OpenAPI conformance test to be launched and then retrieves the messages
+to check business conformance, following the same logic that was implemented into the Postman Collection snippet.
+
+It uses the `getMessagesForTestCase()` method to retrieve the messages exchanged during the test and then checks the content. While this is done
+in pure Java here, you may use the tool or library of your choice like [JSONAssert](https://github.com/skyscreamer/JSONassert),
+[Cucumber](https://cucumber.io/docs/installation/java/) or others  
 
 
 ### 

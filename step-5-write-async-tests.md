@@ -86,7 +86,7 @@ Things are a bit more complex here, but we'll walk through step-by-step:
 
 The sequence diagram below details the test sequence. You'll see 2 parallel blocks being executed:
 * One that corresponds to Microcks test - where it connects and listen for Kafka messages,
-* One that corresponds to the `OrderService` invokation that is expected to trigger a message on Kafka.
+* One that corresponds to the `OrderService` invocation that is expected to trigger a message on Kafka.
 
 ```mermaid
 sequenceDiagram
@@ -112,6 +112,49 @@ sequenceDiagram
 Because the test is a success, it means that Microcks has received an `OrderEvent` on the specified topic and has validated the message
 conformance with the AsyncAPI contract or this event-driven architecture. So you're sure that all your Spring Boot configuration, Kafka JSON serializer
 configuration and network communication are actually correct!
+
+### Bonus step - Verify the event content
+
+So you're now sure that an event has been sent to Kafka and that it's valid regarding the AsyncAPI contract. But what about the content
+of this event? If you want to go further and check the content of the event, you can do it by asking Microcks the events read during the 
+test execution and actually check their content. This can be done adding a few lines of code:
+
+```java
+@Test
+void testEventIsPublishedWhenOrderIsCreated() {
+  // [...] Unchanged comparing previous step.
+
+  try {
+     // [...] Unchanged comparing previous step.
+
+     // Get the Microcks test result.
+     TestResult testResult = testRequestFuture.get();
+     
+     // [...] Unchanged comparing previous step.
+
+     // Check the content of the emitted event, read from Kafka topic.
+     List<UnidirectionalEvent> events = microcksEnsemble.getMicrocksContainer()
+           .getEventMessagesForTestCase(testResult, "SUBSCRIBE orders-created");
+
+     assertEquals(1, events.size());
+
+     EventMessage message = events.get(0).getEventMessage();
+     Map<String, Object> messageMap = new ObjectMapper().readValue(message.getContent(), new TypeReference<>() {});
+
+     // Properties from the event message should match the order.
+     assertEquals("Creation", messageMap.get("changeReason"));
+     Map<String, Object> orderMap = (Map<String, Object>) messageMap.get("order");
+     assertEquals("123-456-789", orderMap.get("customerId"));
+     assertEquals(8.4, orderMap.get("totalPrice"));
+     assertEquals(2, ((List<?>) orderMap.get("productQuantities")).size());
+  } catch (Exception e) {
+     fail("No exception should be thrown when testing Kafka publication", e);
+  }
+}
+```
+
+Here, we're using the `getEventMessagesForTestCase()` method on the Microcks container to retrieve the messages read during the test execution.
+Using the wrapped `EventMessage` class, we can then check the content of the message and assert that it matches the order we've created.
 
 ## Second Test - Verify our OrderEventListener is processing events
 
