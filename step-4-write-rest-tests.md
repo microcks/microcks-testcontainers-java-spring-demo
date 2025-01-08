@@ -128,9 +128,9 @@ public void testGetPastries() {
    pastries = client.listPastries("L");
    assertEquals(2, pastries.size());
 
-  // Check that the mock API has really been invoked.
-  boolean mockInvoked = microcksEnsemble.getMicrocksContainer().verify("API Pastries", "0.0.1");
-  assertTrue(mockInvoked, "Mock API not invoked");
+   // Check that the mock API has really been invoked.
+   boolean mockInvoked = microcksEnsemble.getMicrocksContainer().verify("API Pastries", "0.0.1");
+   assertTrue(mockInvoked, "Mock API not invoked");
 }
 ```
 
@@ -164,6 +164,9 @@ void testGetPastry() {
    assertEquals(3, afterMockInvocations - beforeMockInvocations, "Mock API not invoked the correct number of times");
 }
 ```
+
+This is a super powerful way to ensure that your application logic (caching, no caching, etc.) is correctly implemented and use the
+mock endpoints when required 🎉
 
 ## Second Test - Verify the technical conformance of Order Service API
 
@@ -324,6 +327,10 @@ void testOpenAPIContractAndBusinessConformance() throws Exception {
 
    // You may also check business conformance.
    List<RequestResponsePair> pairs = microcksEnsemble.getMicrocksContainer().getMessagesForTestCase(testResult, "POST /orders");
+   
+   // We need a mapper to deserialize JSON content.
+   ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+  
    for (RequestResponsePair pair : pairs) {
       if ("201".equals(pair.getResponse().getStatus())) {
          Map<String, Object> requestMap = mapper.readValue(pair.getRequest().getContent(), new TypeReference<>() {});
