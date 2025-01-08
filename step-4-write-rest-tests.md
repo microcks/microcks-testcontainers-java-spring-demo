@@ -345,8 +345,8 @@ This test is a bit more complex than the previous ones. It first asks for an Ope
 to check business conformance, following the same logic that was implemented into the Postman Collection snippet.
 
 It uses the `getMessagesForTestCase()` method to retrieve the messages exchanged during the test and then checks the content. While this is done
-in pure Java here, you may use the tool or library of your choice like [JSONAssert](https://github.com/skyscreamer/JSONassert),
-[Cucumber](https://cucumber.io/docs/installation/java/) or others  
+in pure Java here, you may use the tool or library of your choice like [JSONassert](https://github.com/skyscreamer/JSONassert),
+[AssertJ](https://assertj.github.io/doc/), [Cucumber](https://cucumber.io/docs/installation/java/) or others.
 
 
 ### 
