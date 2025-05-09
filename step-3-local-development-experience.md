@@ -15,18 +15,19 @@ Currently, if you run the application from your terminal, you will see the follo
  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
   '  |____| .__|_| |_|_| |_\__, | / / / /
  =========|_|==============|___/=/_/_/_/
- :: Spring Boot ::                (v3.2.1)
 
-2024-01-29T17:38:40.559+01:00  INFO 96159 --- [  restartedMain] org.acme.order.OrderServiceApplication   : Starting OrderServiceApplication using Java 17.0.6 with PID 96159 (/Users/laurent/Development/github/microcks-testcontainers-java-spring-demo/target/classes started by laurent in /Users/laurent/Development/github/microcks-testcontainers-java-spring-demo)
-2024-01-29T17:38:40.560+01:00  INFO 96159 --- [  restartedMain] org.acme.order.OrderServiceApplication   : No active profile set, falling back to 1 default profile: "default"
+ :: Spring Boot ::                (v3.4.5)
+
+2025-05-09T17:00:57.949+02:00  INFO 73264 --- [  restartedMain] org.acme.order.OrderServiceApplication   : Starting OrderServiceApplication using Java 17.0.6 with PID 73264 (/Users/laurent/Development/github/microcks-testcontainers-java-spring-demo/target/classes started by laurent in /Users/laurent/Development/github/microcks-testcontainers-java-spring-demo)
+2025-05-09T17:00:57.952+02:00  INFO 73264 --- [  restartedMain] org.acme.order.OrderServiceApplication   : No active profile set, falling back to 1 default profile: "default"
 [...]
-2024-01-29T17:38:41.344+01:00  INFO 96159 --- [  restartedMain] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.6.1
-2024-01-29T17:38:41.344+01:00  INFO 96159 --- [  restartedMain] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 5e3c2b738d253ff5
-2024-01-29T17:38:41.344+01:00  INFO 96159 --- [  restartedMain] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1706546321343
-2024-01-29T17:38:41.345+01:00  INFO 96159 --- [  restartedMain] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-order-service-1, groupId=order-service] Subscribed to topic(s): orders-reviewed
-2024-01-29T17:38:41.352+01:00  INFO 96159 --- [  restartedMain] org.acme.order.OrderServiceApplication   : Started OrderServiceApplication in 0.911 seconds (process running for 1.079)
-2024-01-29T17:38:41.419+01:00  INFO 96159 --- [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-order-service-1, groupId=order-service] Node -1 disconnected.
-2024-01-29T17:38:41.420+01:00  WARN 96159 --- [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-order-service-1, groupId=order-service] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2025-05-09T17:00:58.788+02:00  INFO 73264 --- [  restartedMain] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.8.1
+2025-05-09T17:00:58.788+02:00  INFO 73264 --- [  restartedMain] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 70d6ff42debf7e17
+2025-05-09T17:00:58.788+02:00  INFO 73264 --- [  restartedMain] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1746802858787
+2025-05-09T17:00:58.789+02:00  INFO 73264 --- [  restartedMain] o.a.k.c.c.internals.LegacyKafkaConsumer  : [Consumer clientId=consumer-order-service-1, groupId=order-service] Subscribed to topic(s): orders-reviewed
+2025-05-09T17:00:58.797+02:00  INFO 73264 --- [  restartedMain] org.acme.order.OrderServiceApplication   : Started OrderServiceApplication in 0.995 seconds (process running for 1.165)
+2025-05-09T17:00:58.870+02:00  INFO 73264 --- [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-order-service-1, groupId=order-service] Node -1 disconnected.
+2025-05-09T17:00:58.871+02:00  WARN 73264 --- [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-order-service-1, groupId=order-service] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
 [...]
 ```
 
@@ -70,10 +71,7 @@ import org.testcontainers.utility.DockerImageName;
 public class ContainersConfiguration {
 
    private static Network network = Network.newNetwork();
-
-   private KafkaContainer kafkaContainer;
-
-
+   
    @Bean
    @ServiceConnection
    KafkaContainer kafkaContainer() {
@@ -85,8 +83,8 @@ public class ContainersConfiguration {
    }
 
    @Bean
-   MicrocksContainersEnsemble microcksEnsemble(DynamicPropertyRegistry registry) {
-      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.10.0")
+   MicrocksContainersEnsemble microcksEnsemble(KafkaContainer kafkaContainer) {
+      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.11.2")
             .withPostman()             // We need this to do contract-testing with Postman collection
             .withAsyncFeature()        // We need this for async mocking and contract-testing
             .withAccessToHost(true)    // We need this to access our webapp while it runs
@@ -95,13 +93,18 @@ public class ContainersConfiguration {
             .withSecondaryArtifacts("order-service-postman-collection.json", "third-parties/apipastries-postman-collection.json")
             .withAsyncDependsOn(kafkaContainer);   // We need this to be sure Kafka will be up before Microcks async minion
 
-      // We need to replace the default endpoints with those provided by Microcks.
-      registry.add("application.pastries-base-url",
-            () -> ensemble.getMicrocksContainer().getRestMockEndpoint("API Pastries", "0.0.1"));
-      registry.add("application.order-events-reviewed-topic",
-            () -> ensemble.getAsyncMinionContainer().getKafkaMockTopic("Order Events API", "0.1.0", "PUBLISH orders-reviewed"));
-
       return ensemble;
+   }
+
+   @Bean
+   public DynamicPropertyRegistrar endpointsProperties(MicrocksContainersEnsemble ensemble) {
+      // We need to replace the default endpoints with those provided by Microcks.
+      return (properties) -> {
+         properties.add("application.pastries-base-url", () -> ensemble.getMicrocksContainer()
+               .getRestMockEndpoint("API Pastries", "0.0.1"));
+         properties.add("application.order-events-reviewed-topic", () -> ensemble.getAsyncMinionContainer()
+               .getKafkaMockTopic("Order Events API", "0.1.0", "PUBLISH orders-reviewed"));
+      };
    }
 }
 ```
@@ -113,9 +116,9 @@ Let's understand what this configuration class does:
   So, we configured `KafkaContainer` as beans with `@ServiceConnection` annotation.
   This configuration will automatically start these containers and register the **Kafka** connection properties automatically.
 * We also configure a `MicrocksContainersEnsemble` that will be responsible for providing mocks for our 3rd party systems.
-  As REST Client URL properties are not standard ones, Microcks does not contribute any `ServiceConnection`. Instead, we have
-  the ability to use the `DynamicPropertyRegistry` to wire our application properties corresponding to REST Client URL and Kafka Topic name.
-  This way our application is using the endpoints that are provided by Microcks.
+  As REST Client URL properties are not standard ones, Microcks does not contribute any `ServiceConnection`. 
+* Instead, we have  the ability to use the `DynamicPropertyRegistrar` to wire our application properties corresponding to REST Client URL 
+  and Kafka Topic name. This way our application is using the endpoints that are provided by Microcks.
 
 And that's it! 🎉 You don't need to download and install extra-things, or clone other repositories and figure out how to start your dependant services. 
 
@@ -148,26 +151,23 @@ You should see the container startups messages into the logs:
 
 ```shell
 [...]
-18:12:37.237 [restartedMain] INFO  org.testcontainers.DockerClientFactory - Checking the system...
-18:12:37.237 [restartedMain] INFO  org.testcontainers.DockerClientFactory - ✔︎ Docker server version should be at least 1.6.0
-18:12:37.276 [restartedMain] INFO  tc.quay.io/microcks/microcks-uber:1.8.1 - Creating container for image: quay.io/microcks/microcks-uber:1.8.1
-18:12:37.601 [restartedMain] INFO  tc.testcontainers/ryuk:0.5.1 - Creating container for image: testcontainers/ryuk:0.5.1
-18:12:37.847 [restartedMain] INFO  org.testcontainers.utility.RegistryAuthLocator - Credential helper/store (docker-credential-desktop) does not have credentials for https://index.docker.io/v1/
-18:12:37.923 [restartedMain] INFO  tc.testcontainers/ryuk:0.5.1 - Container testcontainers/ryuk:0.5.1 is starting: e9bfe5ba9c3d58ae45074c553ee774f07c012954d1f2947ea0d1c03a0129588a
-18:12:38.178 [restartedMain] INFO  tc.testcontainers/ryuk:0.5.1 - Container testcontainers/ryuk:0.5.1 started in PT0.577482S
-18:12:38.215 [restartedMain] INFO  tc.testcontainers/sshd:1.1.0 - Creating container for image: testcontainers/sshd:1.1.0
-18:12:38.239 [restartedMain] INFO  tc.testcontainers/sshd:1.1.0 - Container testcontainers/sshd:1.1.0 is starting: a9375373e4ccc533f7cdc3922be18c813f59317ffc16ccdfd1e5cba4ce4241bb
-18:12:38.446 [restartedMain] INFO  tc.testcontainers/sshd:1.1.0 - Container testcontainers/sshd:1.1.0 started in PT0.23102S
-18:12:38.538 [restartedMain] INFO  tc.quay.io/microcks/microcks-uber:1.8.1 - Container quay.io/microcks/microcks-uber:1.8.1 is starting: a1ba55342452f979037abab48235354003a604d566a57409d2396e9fe17c5d57
-18:12:42.257 [restartedMain] INFO  tc.quay.io/microcks/microcks-uber:1.8.1 - Container quay.io/microcks/microcks-uber:1.8.1 started in PT4.980663S
-18:12:42.611 [restartedMain] INFO  tc.quay.io/microcks/microcks-postman-runtime:latest - Creating container for image: quay.io/microcks/microcks-postman-runtime:latest
-18:12:42.654 [restartedMain] INFO  tc.quay.io/microcks/microcks-postman-runtime:latest - Container quay.io/microcks/microcks-postman-runtime:latest is starting: 3f9d6931537adc106ff75938ba9d42458047ad58e447ceb89e7dbe5dd25c21bd
-18:12:43.378 [restartedMain] INFO  tc.quay.io/microcks/microcks-postman-runtime:latest - Container quay.io/microcks/microcks-postman-runtime:latest started in PT0.766923S
-18:12:43.380 [testcontainers-lifecycle-1] INFO  tc.confluentinc/cp-kafka:7.5.0 - Creating container for image: confluentinc/cp-kafka:7.5.0
-18:12:43.423 [testcontainers-lifecycle-1] INFO  tc.confluentinc/cp-kafka:7.5.0 - Container confluentinc/cp-kafka:7.5.0 is starting: 7fa0668cbd980b82a1746a82776ec7c4f8aae7954f51051022e579a43515fbe5
-18:12:46.427 [testcontainers-lifecycle-1] INFO  tc.confluentinc/cp-kafka:7.5.0 - Container confluentinc/cp-kafka:7.5.0 started in PT3.04718S
-18:12:46.428 [restartedMain] INFO  tc.quay.io/microcks/microcks-uber-async-minion:1.8.1 - Creating container for image: quay.io/microcks/microcks-uber-async-minion:1.8.1
-18:12:46.452 [restartedMain] INFO  tc.quay.io/microcks/microcks-uber-async-minion:1.8.1 - Container quay.io/microcks/microcks-uber-async-minion:1.8.1 is starting: e53b149bf37d6e9a9d738fb0db328b1686d816abcb12fc0d8d87edf4513930b8
+16:56:24.419 [main] INFO  org.testcontainers.DockerClientFactory - Checking the system...
+16:56:24.419 [main] INFO  org.testcontainers.DockerClientFactory - ✔︎ Docker server version should be at least 1.6.0
+16:56:24.423 [main] INFO  tc.confluentinc/cp-kafka:7.5.0 - Creating container for image: confluentinc/cp-kafka:7.5.0
+16:56:24.500 [main] INFO  tc.confluentinc/cp-kafka:7.5.0 - Container confluentinc/cp-kafka:7.5.0 is starting: 44c1859c5f78528e2bca9868e52731ef5148f99f6142bbe0cb8ba9e23197199b
+16:56:27.355 [main] INFO  tc.confluentinc/cp-kafka:7.5.0 - Container confluentinc/cp-kafka:7.5.0 started in PT2.931612S
+16:56:27.355 [main] INFO  tc.quay.io/microcks/microcks-uber:1.11.2 - Creating container for image: quay.io/microcks/microcks-uber:1.11.2
+16:56:27.409 [main] INFO  tc.testcontainers/sshd:1.2.0 - Creating container for image: testcontainers/sshd:1.2.0
+16:56:27.433 [main] INFO  tc.testcontainers/sshd:1.2.0 - Container testcontainers/sshd:1.2.0 is starting: 03f99cba3223ce9d2b972462f9ca0167b8974d1f0376e8f99867a454aae2f006
+16:56:27.644 [main] INFO  tc.testcontainers/sshd:1.2.0 - Container testcontainers/sshd:1.2.0 started in PT0.235162S
+16:56:27.733 [main] INFO  tc.quay.io/microcks/microcks-uber:1.11.2 - Container quay.io/microcks/microcks-uber:1.11.2 is starting: e51a3a42b29c2dae3efbd0766a43ff04f031cec4774e9f455a549f18d44910ae
+16:56:30.560 [main] INFO  tc.quay.io/microcks/microcks-uber:1.11.2 - Container quay.io/microcks/microcks-uber:1.11.2 started in PT3.205068S
+16:56:30.893 [main] INFO  tc.quay.io/microcks/microcks-postman-runtime:latest - Creating container for image: quay.io/microcks/microcks-postman-runtime:latest
+16:56:30.937 [main] INFO  tc.quay.io/microcks/microcks-postman-runtime:latest - Container quay.io/microcks/microcks-postman-runtime:latest is starting: 32c1bb9511ffda7ecd35c16eb90251301980a0c047ede0b4fed8b068040cfee7
+16:56:31.342 [main] INFO  tc.quay.io/microcks/microcks-postman-runtime:latest - Container quay.io/microcks/microcks-postman-runtime:latest started in PT0.448918S
+16:56:31.345 [main] INFO  tc.quay.io/microcks/microcks-uber-async-minion:1.11.2 - Creating container for image: quay.io/microcks/microcks-uber-async-minion:1.11.2
+16:56:31.376 [main] INFO  tc.quay.io/microcks/microcks-uber-async-minion:1.11.2 - Container quay.io/microcks/microcks-uber-async-minion:1.11.2 is starting: 4fb71aac11a9b55fbade81ae504e2f934db68de9a644d242f81410a724506478
+16:56:32.944 [main] INFO  tc.quay.io/microcks/microcks-uber-async-minion:1.11.2 - Container quay.io/microcks/microcks-uber-async-minion:1.11.2 started in PT1.598934S
 [...]
 ```
 
