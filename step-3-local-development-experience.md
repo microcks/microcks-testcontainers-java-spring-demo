@@ -84,7 +84,7 @@ public class ContainersConfiguration {
 
    @Bean
    MicrocksContainersEnsemble microcksEnsemble(KafkaContainer kafkaContainer) {
-      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.11.2")
+      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.13.2")
             .withPostman()             // We need this to do contract-testing with Postman collection
             .withAsyncFeature()        // We need this for async mocking and contract-testing
             .withAccessToHost(true)    // We need this to access our webapp while it runs
