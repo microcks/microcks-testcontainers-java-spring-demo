@@ -6,8 +6,8 @@ import io.github.microcks.testcontainers.model.TestResult;
 import io.github.microcks.testcontainers.model.TestRunnerType;
 import io.github.microcks.testcontainers.model.UnidirectionalEvent;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 import org.acme.order.BaseIntegrationTest;
 import org.acme.order.service.model.Order;
 import org.acme.order.service.model.OrderInfo;
@@ -17,7 +17,7 @@ import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 
 import java.time.Duration;
 import java.util.List;
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrderServiceTests extends BaseIntegrationTest {
 
    @Autowired
-   KafkaContainer kafkaContainer;
+   ConfluentKafkaContainer kafkaContainer;
 
    @Autowired
    OrderService service;
@@ -83,7 +83,7 @@ class OrderServiceTests extends BaseIntegrationTest {
          assertEquals(1, events.size());
 
          EventMessage message = events.get(0).getEventMessage();
-         Map<String, Object> messageMap = new ObjectMapper().readValue(message.getContent(), new TypeReference<>() {});
+         Map<String, Object> messageMap = new JsonMapper().readValue(message.getContent(), new TypeReference<>() {});
 
          // Properties from the event message should match the order.
          assertEquals("Creation", messageMap.get("changeReason"));
