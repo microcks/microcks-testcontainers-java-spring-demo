@@ -5,7 +5,8 @@ import io.github.microcks.testcontainers.model.TestResult;
 import io.github.microcks.testcontainers.model.TestRunnerType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.acme.order.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,9 @@ class OrderControllerPostmanContractTests extends BaseIntegrationTest {
       // You may inspect complete response object with following:
       //System.err.println(microcksEnsemble.getMicrocksContainer().getLogs());
       //System.err.println(microcksEnsemble.getPostmanContainer().getLogs());
-      ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+      ObjectMapper mapper = JsonMapper.builder()
+            .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+            .build();
       System.err.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
 
       assertTrue(testResult.isSuccess());

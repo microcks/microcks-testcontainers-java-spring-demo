@@ -6,8 +6,9 @@ import io.github.microcks.testcontainers.model.TestResult;
 import io.github.microcks.testcontainers.model.TestRunnerType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.acme.order.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +32,9 @@ class OrderControllerContractTests extends BaseIntegrationTest {
       TestResult testResult = microcksEnsemble.getMicrocksContainer().testEndpoint(testRequest);
 
       // You may inspect complete response object with following:
-      ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+      ObjectMapper mapper = JsonMapper.builder()
+            .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+            .build();
       System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
 
       assertTrue(testResult.isSuccess());
@@ -50,7 +53,9 @@ class OrderControllerContractTests extends BaseIntegrationTest {
       TestResult testResult = microcksEnsemble.getMicrocksContainer().testEndpoint(testRequest);
 
       // You may inspect complete response object with following:
-      ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+      ObjectMapper mapper = JsonMapper.builder()
+            .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+            .build();
       System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
 
       assertTrue(testResult.isSuccess());
