@@ -17,7 +17,7 @@ import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 
 import java.time.Duration;
 import java.util.List;
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrderServiceTests extends BaseIntegrationTest {
 
    @Autowired
-   KafkaContainer kafkaContainer;
+   ConfluentKafkaContainer kafkaContainer;
 
    @Autowired
    OrderService service;

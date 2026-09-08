@@ -7,8 +7,8 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.DynamicPropertyRegistrar;
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration(proxyBeanMethods = false)
@@ -18,23 +18,24 @@ public class ContainersConfiguration {
 
    @Bean
    @ServiceConnection
-   KafkaContainer kafkaContainer() {
-      KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"))
+   ConfluentKafkaContainer kafkaContainer() {
+      ConfluentKafkaContainer kafkaContainer = new ConfluentKafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"))
             .withNetwork(network)
             .withNetworkAliases("kafka")
-            .withListener(() -> "kafka:19092");
+            .withListener("kafka:19092");
       return kafkaContainer;
    }
 
    @Bean
-   MicrocksContainersEnsemble microcksEnsemble(KafkaContainer kafkaContainer) {
+   MicrocksContainersEnsemble microcksEnsemble(ConfluentKafkaContainer kafkaContainer) {
       // Uncomment these lines (36-38) if you want to use the native image of Microcks
       // and comment the next MicrocksContainersEnsemble declaration line (40).
-//      DockerImageName nativeImage = DockerImageName.parse("quay.io/microcks/microcks-uber:1.11.2-native")
-//            .asCompatibleSubstituteFor("quay.io/microcks/microcks-uber:1.9.0");
+//      DockerImageName nativeImage = DockerImageName.parse("quay.io/microcks/microcks-uber:1.15.0-native")
+//            .asCompatibleSubstituteFor("quay.io/microcks/microcks-uber:1.15.0");
 //      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, nativeImage)
 
-      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.13.2")
+      // We need this to be sure Kafka will be up before Microcks async minion
+      return new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.15.0")
             .withPostman()             // We need this to do contract-testing with Postman collection
             .withAsyncFeature()        // We need this for async mocking and contract-testing
             .withAccessToHost(true)   // We need this to access our webapp while it runs
@@ -42,8 +43,6 @@ public class ContainersConfiguration {
             .withMainArtifacts("order-service-openapi.yaml", "order-events-asyncapi.yaml", "third-parties/apipastries-openapi.yaml")
             .withSecondaryArtifacts("order-service-postman-collection.json", "third-parties/apipastries-postman-collection.json")
             .withAsyncDependsOn(kafkaContainer);   // We need this to be sure Kafka will be up before Microcks async minion
-
-      return ensemble;
    }
 
    @Bean
